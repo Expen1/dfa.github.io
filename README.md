@@ -1,1 +1,1 @@
-DFA Simulator
+Welcome to the DFA Simulator! This project allows you to visualize and simulate Deterministic Finite Automata (DFA) in an interactive way. Whether you're a student learning about automata theory or a developer looking to understand how DFAs work, this tool is designed to help you grasp the concepts easily.
