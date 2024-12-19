@@ -1,0 +1,160 @@
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   DFA Automata Generator
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet"/>
+ </head>
+ <body class="bg-gray-100 font-roboto">
+  <header class="bg-blue-600 text-white p-4">
+   <div class="container mx-auto flex justify-between items-center">
+    <h1 class="text-2xl font-bold">
+     DFA Automata Generator
+    </h1>
+    <nav>
+     <ul class="flex space-x-4">
+      <li>
+       <a class="hover:underline" href="#">
+        Home
+       </a>
+      </li>
+     </ul>
+    </nav>
+   </div>
+  </header>
+  <main class="container mx-auto p-4">
+   <section class="bg-white p-6 rounded shadow-md">
+    <h2 class="text-xl font-bold mb-4">
+     Generate DFA Automata
+    </h2>
+    <form class="space-y-4" id="dfaForm">
+     <div>
+      <label class="block text-sm font-medium text-gray-700" for="states">
+       States (comma separated)
+      </label>
+      <input class="mt-1 block w-full p-2 border border-gray-300 rounded-md" id="states" name="states" placeholder="e.g., q0,q1,q2" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700" for="alphabet">
+       Alphabet (comma separated)
+      </label>
+      <input class="mt-1 block w-full p-2 border border-gray-300 rounded-md" id="alphabet" name="alphabet" placeholder="e.g., 0,1" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700" for="transitions">
+       Transitions (comma separated, format: state,alphabet,next_state)
+      </label>
+      <input class="mt-1 block w-full p-2 border border-gray-300 rounded-md" id="transitions" name="transitions" placeholder="e.g., q0,0,q1;q0,1,q0" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700" for="startState">
+       Start State
+      </label>
+      <input class="mt-1 block w-full p-2 border border-gray-300 rounded-md" id="startState" name="startState" placeholder="e.g., q0" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700" for="acceptStates">
+       Accept States (comma separated)
+      </label>
+      <input class="mt-1 block w-full p-2 border border-gray-300 rounded-md" id="acceptStates" name="acceptStates" placeholder="e.g., q1,q2" type="text"/>
+     </div>
+     <button class="bg-blue-600 text-white px-4 py-2 rounded-md" type="submit">
+      Generate
+     </button>
+    </form>
+   </section>
+   <section class="mt-8 bg-white p-6 rounded shadow-md" id="dfaVisualization">
+    <h2 class="text-xl font-bold mb-4">
+     DFA Visualization
+    </h2>
+    <div class="relative w-full h-64 bg-gray-200 rounded-md flex items-center justify-center" id="dfaCanvas">
+     <img alt="Placeholder image for DFA visualization with circles and arrows representing states and transitions" class="w-full h-full object-cover rounded-md" height="400" src="https://storage.googleapis.com/a1aa/image/i2irElxqzZrAGNlJq0B8qxQfaoYpurgPVNz55pF5WYiccLeTA.jpg" width="600"/>
+    </div>
+   </section>
+  </main>
+  <footer class="bg-blue-600 text-white p-4 mt-8">
+   <div class="container mx-auto text-center">
+    <p>
+     © 2023 DFA Automata Generator. All rights reserved. Code by Hosein.
+    </p>
+   </div>
+  </footer>
+  <script>
+   document.getElementById('dfaForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const states = document.getElementById('states').value.split(',');
+            const alphabet = document.getElementById('alphabet').value.split(',');
+            const transitions = document.getElementById('transitions').value.split(';').map(t => t.split(','));
+            const startState = document.getElementById('startState').value;
+            const acceptStates = document.getElementById('acceptStates').value.split(',');
+
+            const canvas = document.getElementById('dfaCanvas');
+            canvas.innerHTML = '';
+
+            const svgNS = "http://www.w3.org/2000/svg";
+            const svg = document.createElementNS(svgNS, "svg");
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+
+            const stateRadius = 20;
+            const statePositions = {};
+
+            states.forEach((state, index) => {
+                const angle = (index / states.length) * 2 * Math.PI;
+                const x = 300 + 200 * Math.cos(angle);
+                const y = 200 + 150 * Math.sin(angle);
+                statePositions[state] = { x, y };
+
+                const circle = document.createElementNS(svgNS, "circle");
+                circle.setAttribute('cx', x);
+                circle.setAttribute('cy', y);
+                circle.setAttribute('r', stateRadius);
+                circle.setAttribute('stroke', 'black');
+                circle.setAttribute('stroke-width', '2');
+                circle.setAttribute('fill', acceptStates.includes(state) ? 'lightgreen' : 'white');
+                svg.appendChild(circle);
+
+                const text = document.createElementNS(svgNS, "text");
+                text.setAttribute('x', x);
+                text.setAttribute('y', y + 5);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('font-size', '12');
+                text.textContent = state;
+                svg.appendChild(text);
+            });
+
+            transitions.forEach(([from, symbol, to]) => {
+                const { x: x1, y: y1 } = statePositions[from];
+                const { x: x2, y: y2 } = statePositions[to];
+
+                const line = document.createElementNS(svgNS, "line");
+                line.setAttribute('x1', x1);
+                line.setAttribute('y1', y1);
+                line.setAttribute('x2', x2);
+                line.setAttribute('y2', y2);
+                line.setAttribute('stroke', 'black');
+                line.setAttribute('stroke-width', '2');
+                svg.appendChild(line);
+
+                const midX = (x1 + x2) / 2;
+                const midY = (y1 + y2) / 2;
+
+                const text = document.createElementNS(svgNS, "text");
+                text.setAttribute('x', midX);
+                text.setAttribute('y', midY - 5);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('font-size', '12');
+                text.textContent = symbol;
+                svg.appendChild(text);
+            });
+
+            canvas.appendChild(svg);
+        });
+  </script>
+ </body>
+</html>
